@@ -19,10 +19,10 @@ class DoctorDrawer extends StatelessWidget {
         children: [
           _buildHeader(context),
           _drawerItem(context, Icons.home, '홈', '/d_home'),
-          _drawerItem(context, Icons.personal_injury, '비대면 진료 현황', '/d_dashboard'),
+          _drawerItem(context, Icons.personal_injury, '비대면 진료 신청 현황', '/d_dashboard'),
           _drawerItem(context, Icons.assignment, '비대면 진료 결과', '/d_inference_result'),
-          _drawerItem(context, Icons.event, '비대면 진료 캘린더', '/d_calendar'),
-          _drawerItem(context, Icons.people, '비대면 환자 목록', '/d_patients'),
+          _drawerItem(context, Icons.event, '예약 캘린더', '/d_calendar'),
+          _drawerItem(context, Icons.people, '환자 방문 기록', '/d_patients'),
           const Divider(),
           _drawerItem(context, Icons.settings, '설정', '/d_settings'),
         ],

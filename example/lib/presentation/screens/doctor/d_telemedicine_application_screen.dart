@@ -10,7 +10,7 @@ class DTelemedicineApplicationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('비대면 진료 신청'),
+        title: const Text('비대면 진료 현황'),
         backgroundColor: Colors.blueAccent,
         elevation: 0,
         shape: const RoundedRectangleBorder(
