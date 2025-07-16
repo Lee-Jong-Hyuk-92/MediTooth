@@ -15,7 +15,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     {'sender': 'user', 'text': '어금니가 시려요.'},
     {'sender': 'chatbot', 'text': '시린 치아는 잇몸 질환이나 충치일 수 있어요. 더 자세히 말씀해주시겠어요?'},
   ]; // 챗봇 대화 목록 (임시 데이터)
-////TEST
+  
   void _sendMessage() {
     if (_messageController.text.isNotEmpty) {
       setState(() {

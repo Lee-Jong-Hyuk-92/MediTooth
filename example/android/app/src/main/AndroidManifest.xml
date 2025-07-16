@@ -22,7 +22,7 @@
         android:maxSdkVersion="32" />
 
     <application
-        android:label="yolo_example"
+        android:label="MediTooth"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
