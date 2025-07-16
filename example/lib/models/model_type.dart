@@ -30,3 +30,4 @@ enum ModelType {
 
   const ModelType(this.modelName, this.task);
 }
+ㄴㄴㄹㄴㅁㄴㅁㄴㅁㄹㄴㄴㅁㄹ
