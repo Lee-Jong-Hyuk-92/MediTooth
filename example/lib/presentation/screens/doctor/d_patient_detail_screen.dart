@@ -10,7 +10,7 @@ import '/presentation/model/doctor/d_consultation_record.dart';
 class PatientDetailScreen extends StatefulWidget {
   final int patientId;
 
-  const PatientDetailScreen({required this.patientId, super.key});
+  const PatientDetailScreen({required this.patientId, super.key});ss
 
   @override
   State<PatientDetailScreen> createState() => _PatientDetailScreenState();
