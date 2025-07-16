@@ -1,14 +1,14 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'presentation/viewmodel/auth_viewmodel.dart';
 import 'presentation/viewmodel/userinfo_viewmodel.dart';
-import 'services/router.dart';
-import '/presentation/viewmodel/auth_viewmodel.dart';
-import '/presentation/viewmodel/doctor/d_patient_viewmodel.dart';
-import '/presentation/viewmodel/doctor/d_consultation_record_viewmodel.dart';
-import '/presentation/viewmodel/doctor/d_dashboard_viewmodel.dart'; // ✅ 유지
+import 'presentation/viewmodel/doctor/d_patient_viewmodel.dart';
+import 'presentation/viewmodel/doctor/d_consultation_record_viewmodel.dart';
+import 'presentation/viewmodel/doctor/d_dashboard_viewmodel.dart';
 
+import 'services/router.dart';
 import 'core/theme/app_theme.dart';
 
 void main() {
@@ -30,7 +30,7 @@ void main() {
           create: (_) => ConsultationRecordViewModel(baseUrl: globalBaseUrl),
         ),
         ChangeNotifierProvider(
-          create: (_) => DoctorDashboardViewModel(), // ✅ 단 하나만 등록
+          create: (_) => DoctorDashboardViewModel(),
         ),
       ],
       child: YOLOExampleApp(baseUrl: globalBaseUrl),

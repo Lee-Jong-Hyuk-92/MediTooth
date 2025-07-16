@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';  // 라우팅 위해 import
+import 'package:go_router/go_router.dart';
 
 import '../../../presentation/viewmodel/doctor/d_alert_viewmodel.dart';
 import '../../widgets/app_drawer.dart';
 
 class DAlertListScreen extends StatelessWidget {
-  const DAlertListScreen({super.key});
+  final String baseUrl;
+  const DAlertListScreen({super.key, required this.baseUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +15,7 @@ class DAlertListScreen extends StatelessWidget {
       create: (_) => DAlertViewModel()..fetchAlerts(),
       child: Scaffold(
         appBar: AppBar(title: const Text('비대면 진료 알림')),
-        drawer: const AppDrawer(),
+        drawer: DoctorDrawer(baseUrl: baseUrl),  // AppDrawer -> DoctorDrawer(baseUrl) 형태로 수정
         body: Consumer<DAlertViewModel>(
           builder: (context, vm, _) {
             if (vm.loading) {
@@ -37,7 +38,7 @@ class DAlertListScreen extends StatelessWidget {
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       context.push('/d_results', extra: {
-                        'alertId': a.id,  // Alert의 고유 id를 전달
+                        'alertId': a.id,
                       });
                     },
                   ),
