@@ -9,9 +9,9 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '/presentation/viewmodel/auth_viewmodel.dart';
-import 'doctor/d_result_detail_screen.dart';
 
 class UploadScreen extends StatefulWidget {
   final String baseUrl;
@@ -91,7 +91,6 @@ class _UploadScreenState extends State<UploadScreen> {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(responseBody);
-        final userId = registerId;
         final inferenceResultId = responseData['inference_result_id'] as String? ?? 'UNKNOWN';
         final processedPath = responseData['image_url'] as String?;
         final inferenceData = responseData['inference_data'] as Map<String, dynamic>?;
@@ -103,22 +102,20 @@ class _UploadScreenState extends State<UploadScreen> {
           final originalImageUrl = '$baseStaticUrl$originalPath';
           final processedImageUrl = '$baseStaticUrl$processedPath';
 
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ResultDetailScreen(
-                originalImageUrl: originalImageUrl,
-                processedImageUrls: {
-                  1: processedImageUrl,
-                },
-                modelInfos: {
-                  1: inferenceData,
-                },
-                userId: userId,                        // ✅ registerId
-                inferenceResultId: inferenceResultId, // ✅ from response
-                baseUrl: widget.baseUrl,              // ✅ 전달
-              ),
-            ),
+          context.go(
+            '/result_detail',
+            extra: {
+              'originalImageUrl': originalImageUrl,
+              'processedImageUrls': {
+                1: processedImageUrl,
+              },
+              'modelInfos': {
+                1: inferenceData,
+              },
+              'userId': registerId,
+              'inferenceResultId': inferenceResultId,
+              'baseUrl': widget.baseUrl,
+            },
           );
         } else {
           throw Exception('image_url 또는 inference_data 없음');
@@ -144,18 +141,33 @@ class _UploadScreenState extends State<UploadScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('사진으로 예측하기')),
+      appBar: AppBar(
+        title: const Text('사진으로 예측하기'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            final userId = context.read<AuthViewModel>().currentUser?.registerId ?? 'guest';
+            context.go('/home', extra: {'userId': userId});
+          },
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            if (_imageFile != null)
-              Image.file(_imageFile!, height: 200)
-            else if (_webImage != null)
-              Image.memory(_webImage!, height: 200)
-            else
-              const Placeholder(fallbackHeight: 200),
+            SizedBox(
+              height: screenHeight * 0.5,
+              child: Center(
+                child: _imageFile != null
+                    ? Image.file(_imageFile!, fit: BoxFit.contain)
+                    : _webImage != null
+                        ? Image.memory(_webImage!, fit: BoxFit.contain)
+                        : const Icon(Icons.image, size: 120, color: Colors.grey),
+              ),
+            ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -175,7 +187,7 @@ class _UploadScreenState extends State<UploadScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.cloud_upload),
-                  label: const Text('업로드'),
+                  label: const Text('예측하기'),
                 ),
               ],
             ),
