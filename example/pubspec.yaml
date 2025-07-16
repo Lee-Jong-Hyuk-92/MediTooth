@@ -48,6 +48,7 @@ flutter:
     - assets/logo.png
     - assets/applogo.png
     - assets/models/dental_best_float32.tflite
+    - assets/images/meditooth_logo.png
 
 flutter_launcher_icons:
   android: true

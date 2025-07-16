@@ -84,6 +84,25 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 👇 여기에 추가
+            Column(
+              children: [
+                Image.asset(
+                  'assets/images/meditooth_logo.png',
+                  height: 120, // 원하는 크기 조절
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '안녕하세요! MediTooth 입니다.',
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            // 기존 사용자 유형 선택부터 아래는 그대로 유지
             Row(
               children: [
                 Text(
