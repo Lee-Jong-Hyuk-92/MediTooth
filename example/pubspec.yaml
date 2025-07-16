@@ -20,11 +20,10 @@ dependencies:
   provider: ^6.1.1         # ✅ 추가된 부분
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
-  cached_network_image: ^3.3.1  # ✅ 최신 버전 또는 안정 버전 명시
+  cached_network_image: ^3.3.1
   permission_handler: ^11.0.0
   image_gallery_saver:
     path: packages/image_gallery_saver
-  
 
   ultralytics_yolo:
     path: ../
@@ -44,6 +43,7 @@ flutter:
 
   assets:
     - assets/
+    - assets/images/                            # ✅ 치아 캐릭터 이미지 폴더 추가
     - assets/models/
     - assets/logo.png
     - assets/applogo.png
@@ -55,7 +55,7 @@ flutter_launcher_icons:
   image_path: "assets/icon/app_icon_1024.png"
 
 flutter_native_splash:
-  color: "#ffffff" # 배경색
-  image: assets/splash.png # 로고 이미지 경로
+  color: "#ffffff"
+  image: assets/splash.png
   android: true
   ios: true

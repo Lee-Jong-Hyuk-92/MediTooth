@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import '/presentation/viewmodel/doctor/d_dashboard_viewmodel.dart';
 
 //--------------------------------------------------------------
@@ -102,6 +101,7 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
     final int pending = (vm.requestsToday - vm.answeredToday).clamp(0, 1 << 31);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFc4d9ff), // ✅ 연한 하늘색 배경 추가
       appBar: AppBar(
         title: const Text('의사 대시보드 홈'),
         backgroundColor: Colors.blueAccent,
@@ -122,13 +122,23 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('환영합니다, 의사 선생님!',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey[800],
-                    )),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '환영합니다, 의사 선생님!',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey[800],
+                      ),
+                ),
+                Image.asset(
+                  'assets/images/tooth_character.png',
+                  height: 60,
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
-            // 연결된 서버 텍스트 삭제됨
             const SizedBox(height: 30),
             _todayStatsCard(context, requests: vm.requestsToday, answered: vm.answeredToday, pending: pending),
             const SizedBox(height: 25),
@@ -148,7 +158,11 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('오늘의 진료 현황', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.blueAccent)),
+            Text('오늘의 진료 현황',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    )),
             const SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -172,21 +186,26 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         child: Column(
           children: [
-            Text('$value', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.blueAccent)),
+            Text('$value',
+                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    )),
             const SizedBox(height: 5),
-            Text(title, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[700])),
+            Text(title,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.grey[700],
+                    )),
           ],
         ),
       ),
     );
   }
 
-  //------------------ 추가 : 통계/그래프/최근 활동 영역 ------------------
   Widget _additionalStatsSection(BuildContext context) {
     final vm = context.watch<DoctorDashboardViewModel>();
     return ListView(
       children: [
-        // 1) 최근 7일 신청/답변 추이 그래프 (플레이스홀더)
         Card(
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -198,7 +217,6 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        // 2) 진료 유형 비율 파이 차트 (플레이스홀더)
         Card(
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -209,7 +227,6 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
             ),
           ),
         ),
-        // *** 3) 최근 진료 완료 내역 리스트 제거함 ***
       ],
     );
   }
