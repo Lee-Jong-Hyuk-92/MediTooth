@@ -1,5 +1,6 @@
 //C:\Users\user\Desktop\0703flutter_v2\lib\features\chatbot\view\chatbot_screen.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ChatbotScreen extends StatefulWidget {
   const ChatbotScreen({super.key});
@@ -36,8 +37,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.blueAccent, // 앱바 색상 변경
-        elevation: 4, // 그림자 효과
+        backgroundColor: Colors.blueAccent,
+        elevation: 4,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/home'), // ← 홈으로 이동
+        ),
       ),
       body: Column(
         children: [

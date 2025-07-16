@@ -177,8 +177,13 @@ GoRouter createRouter(String baseUrl) {
           GoRoute(
             path: '/history',
             builder: (context, state) {
-              final passedBaseUrl = state.extra as String? ?? baseUrl;
-              return HistoryScreen(baseUrl: passedBaseUrl);
+              final data = state.extra as Map<String, dynamic>? ?? {};
+              final passedBaseUrl = data['baseUrl'] ?? baseUrl;
+              final role = data['role'] ?? 'P'; // 기본값은 'P' (환자)
+              return HistoryScreen(
+                baseUrl: passedBaseUrl,
+                role: role,
+              );
             },
           ),
           GoRoute(

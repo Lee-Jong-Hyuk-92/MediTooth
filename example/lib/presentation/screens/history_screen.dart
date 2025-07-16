@@ -10,8 +10,13 @@ import 'package:go_router/go_router.dart';
 
 class HistoryScreen extends StatefulWidget {
   final String baseUrl;
+  final String role; // ✅ 역할 추가
 
-  const HistoryScreen({super.key, required this.baseUrl});
+  const HistoryScreen({
+    super.key,
+    required this.baseUrl,
+    required this.role, // ✅ 필수
+  });
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -34,7 +39,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final currentUser = authViewModel.currentUser;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('이전 진단 기록')),
+      appBar: AppBar(
+        title: const Text('이전 진단 기록'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (widget.role == 'D') {
+              context.go('/d_home', extra: widget.baseUrl);
+            } else {
+              final userId = context.read<AuthViewModel>().currentUser?.registerId ?? 'guest';
+              context.go('/home', extra: {'userId': userId});
+            }
+          },
+        ),
+      ),
       body: viewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
           : viewModel.error != null
@@ -46,7 +64,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
     );
   }
-
   Widget _buildListView(List<ConsultationRecord> records) {
     final imageBaseUrl = widget.baseUrl.replaceAll('/api', '');
 
@@ -87,7 +104,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ],
             ),
             onTap: () {
-              context.go('/result_detail', extra: {
+              context.push('/result_detail', extra: {
                 'originalImageUrl': '$imageBaseUrl${record.originalImagePath}',
                 'processedImageUrls': {
                   1: '$imageBaseUrl${record.processedImagePath}',
@@ -102,8 +119,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 'userId': record.userId,
                 'inferenceResultId': record.id,
                 'baseUrl': widget.baseUrl,
-                'role': 'P', // ✅ 환자용
-                'from': 'history', // ✅ 추가
+                'role': widget.role,
+                'from': 'history',
               });
             },
           ),

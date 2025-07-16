@@ -13,7 +13,7 @@ class ResultDetailScreen extends StatefulWidget {
   final String inferenceResultId;
   final String baseUrl;
   final String role;
-  final String from; // ✅ 추가
+  final String from;
 
   const ResultDetailScreen({
     super.key,
@@ -23,8 +23,8 @@ class ResultDetailScreen extends StatefulWidget {
     required this.userId,
     required this.inferenceResultId,
     required this.baseUrl,
-    required this.role, // ✅ 추가
-    required this.from, // ✅ 추가
+    required this.role,
+    required this.from,
   });
 
   @override
@@ -33,12 +33,6 @@ class ResultDetailScreen extends StatefulWidget {
 
 class _ResultDetailScreenState extends State<ResultDetailScreen> {
   int? _selectedModelIndex = 1;
-
-  void _toggleModel(int index) {
-    setState(() {
-      _selectedModelIndex = (_selectedModelIndex == index) ? null : index;
-    });
-  }
 
   Future<void> _showAddressDialogAndApply() async {
     final TextEditingController controller = TextEditingController();
@@ -85,12 +79,16 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('❌ 신청 실패: ${jsonDecode(response.body)['error'] ?? '알 수 없는 오류'}')),
+            SnackBar(
+              content: Text(
+                '❌ 신청 실패: ${jsonDecode(response.body)['error'] ?? '알 수 없는 오류'}',
+              ),
+            ),
           );
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ 서버 오류: $e')),
+          SnackBar(content: Text('❌ 서버 오류: \$e')),
         );
       }
     }
@@ -99,7 +97,6 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final double imageHeight = MediaQuery.of(context).size.height * 0.3;
     final currentUser = Provider.of<AuthViewModel>(context, listen: false).currentUser;
 
     final String imageUrl = (_selectedModelIndex != null)
@@ -116,8 +113,7 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('결과 이미지 상세 보기'),
-        centerTitle: true,
+        title: const Text('AI 예측 결과'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -127,65 +123,112 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
               if (widget.from == 'upload') {
                 context.go('/upload', extra: widget.baseUrl);
               } else if (widget.from == 'history') {
-                context.go('/history', extra: widget.baseUrl);
+                context.go('/history', extra: {
+                  'baseUrl': widget.baseUrl,
+                  'role': widget.role,
+                });
               }
             }
           },
         ),
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('🖼️ 표시 중인 이미지', style: textTheme.titleMedium),
-            const SizedBox(height: 10),
+            // 토글 버튼들 (가로 정렬)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildSwitch("충치/치주염/치은염", 1),
+                _buildSwitch("치석/보철물", 2),
+                _buildSwitch("치아번호", 3),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // 이미지 표시
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 imageUrl,
-                height: imageHeight,
+                height: MediaQuery.of(context).size.height * 0.45,
                 fit: BoxFit.contain,
               ),
             ),
-
-            const SizedBox(height: 24),
-            Text('🧪 사용할 AI 모델 선택', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [1, 2, 3].map((index) {
-                return ChoiceChip(
-                  label: Text("모델 $index"),
-                  selected: _selectedModelIndex == index,
-                  onSelected: (_) => _toggleModel(index),
-                );
-              }).toList(),
+
+            // 예측 정보
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black26),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: (modelInfo != null)
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('📊 AI 예측 결과:', style: textTheme.titleMedium),
+                        const SizedBox(height: 6),
+                        if (modelName != null)
+                          Text('・모델: \$modelName', style: textTheme.bodyMedium),
+                        if (confidence != null)
+                          Text('・확신도: \${(confidence * 100).toStringAsFixed(1)}%', style: textTheme.bodyMedium),
+                        Text('・클래스: \$className', style: textTheme.bodyMedium),
+                      ],
+                    )
+                  : const SizedBox(height: 60), // 자리만 유지
             ),
 
-            const SizedBox(height: 24),
-            if (modelInfo != null) ...[
-              Text('📊 모델 분석 정보', style: textTheme.titleMedium),
-              const SizedBox(height: 8),
-              if (modelName != null) Text('모델: $modelName', style: textTheme.bodyMedium),
-              if (confidence != null) Text('확신도: ${(confidence * 100).toStringAsFixed(1)}%', style: textTheme.bodyMedium),
-              Text('클래스: $className', style: textTheme.bodyMedium),
-            ],
+            const Spacer(),
 
-            const SizedBox(height: 32),
-            if (currentUser?.role == 'P')
-              ElevatedButton.icon(
-                onPressed: _showAddressDialogAndApply,
-                icon: const Icon(Icons.send),
-                label: const Text('신청하기'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: textTheme.titleMedium?.copyWith(color: Colors.white),
+            // 하단 버튼들
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.save_alt),
+                    label: const Text("이미지 저장"),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('이미지를 저장했습니다.')),
+                      );
+                    },
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                if (currentUser?.role == 'P')
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.local_hospital),
+                      label: const Text("비대면 진료 신청하기"),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                      onPressed: _showAddressDialogAndApply,
+                    ),
+                  ),
+              ],
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSwitch(String label, int index) {
+    return Column(
+      children: [
+        Switch(
+          value: _selectedModelIndex == index,
+          onChanged: (val) {
+            setState(() {
+              _selectedModelIndex = val ? index : null;
+            });
+          },
+        ),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
     );
   }
 }

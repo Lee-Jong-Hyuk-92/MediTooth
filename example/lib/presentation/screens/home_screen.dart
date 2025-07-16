@@ -130,7 +130,7 @@ class HomeScreen extends StatelessWidget {
                   context,
                   label: '주변 치과',
                   icon: Icons.local_hospital, // 병원 관련 아이콘
-                  onPressed: () => context.go('/clinics'), // '/clinics' 경로로 이동
+                  onPressed: () => context.push('/clinics'), // '/clinics' 경로로 이동
                   buttonColor: Colors.purpleAccent, // 새로운 버튼 색상
                 ),
                 const SizedBox(height: 20), // 버튼 사이 간격
