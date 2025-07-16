@@ -6,6 +6,7 @@ import '/presentation/viewmodel/doctor/d_consultation_record_viewmodel.dart';
 import '/presentation/viewmodel/auth_viewmodel.dart';
 import '/presentation/model/doctor/d_consultation_record.dart';
 import 'doctor/d_result_detail_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class HistoryScreen extends StatefulWidget {
   final String baseUrl;
@@ -86,27 +87,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ],
             ),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ResultDetailScreen(
-                    originalImageUrl: '$imageBaseUrl${record.originalImagePath}',
-                    processedImageUrls: {
-                      1: '$imageBaseUrl${record.processedImagePath}',
-                    },
-                    modelInfos: {
-                      1: {
-                        'model_used': record.modelUsed, // ✅ DB에서 불러온 값 사용
-                        'confidence': record.confidence ?? 0.0,
-                        'lesion_points': record.lesionPoints ?? [],
-                      },
-                    },
-                    userId: record.userId, // ✅ 추가
-                    inferenceResultId: record.id,
-                    baseUrl: widget.baseUrl, // ✅ 여기를 수정
-                  ),
-                ),
-              );
+              context.go('/result_detail', extra: {
+                'originalImageUrl': '$imageBaseUrl${record.originalImagePath}',
+                'processedImageUrls': {
+                  1: '$imageBaseUrl${record.processedImagePath}',
+                },
+                'modelInfos': {
+                  1: {
+                    'model_used': record.modelUsed,
+                    'confidence': record.confidence ?? 0.0,
+                    'lesion_points': record.lesionPoints ?? [],
+                  },
+                },
+                'userId': record.userId,
+                'inferenceResultId': record.id,
+                'baseUrl': widget.baseUrl,
+                'role': 'P', // ✅ 환자용
+                'from': 'history', // ✅ 추가
+              });
             },
           ),
         );

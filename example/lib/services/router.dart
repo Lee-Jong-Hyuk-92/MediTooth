@@ -144,19 +144,22 @@ GoRouter createRouter(String baseUrl) {
           GoRoute(
             path: '/result_detail',
             builder: (context, state) {
-              final data = state.extra as Map<String, dynamic>? ?? {};
+              final data = state.extra as Map<String, dynamic>;
               return ResultDetailScreen(
                 originalImageUrl: data['originalImageUrl'],
-                processedImageUrls: Map<int, String>.from(data['processedImageUrls'] ?? {}),
-                modelInfos: (data['modelInfos'] ?? {})
-                    .map<int, Map<String, dynamic>>((key, value) => MapEntry(int.parse(key.toString()), Map<String, dynamic>.from(value))),
-                userId: data['userId'] ?? 'guest',
-                inferenceResultId: data['inferenceResultId'] ?? 'UNKNOWN',
-                baseUrl: data['baseUrl'] ?? baseUrl,
+                processedImageUrls: Map<int, String>.from(data['processedImageUrls']),
+                modelInfos: Map<int, Map<String, dynamic>>.from(
+                  (data['modelInfos'] ?? {}).map((key, value) =>
+                      MapEntry(int.parse(key.toString()), Map<String, dynamic>.from(value))),
+                ),
+                userId: data['userId'],
+                inferenceResultId: data['inferenceResultId'],
+                baseUrl: data['baseUrl'],
+                role: data['role'], // ✅ 여기도 받아야 함
+                from: data['from'], // ✅ 추가
               );
             },
           ),
-
           GoRoute(
             path: '/diagnosis/realtime',
             builder: (context, state) {

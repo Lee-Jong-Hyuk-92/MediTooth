@@ -115,6 +115,8 @@ class _UploadScreenState extends State<UploadScreen> {
               'userId': registerId,
               'inferenceResultId': inferenceResultId,
               'baseUrl': widget.baseUrl,
+              'role': authViewModel.currentUser?.role ?? 'P',
+              'from': 'upload', // ✅ 추가
             },
           );
         } else {

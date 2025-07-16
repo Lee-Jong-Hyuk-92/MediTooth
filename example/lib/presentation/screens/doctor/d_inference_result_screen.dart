@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '/presentation/viewmodel/doctor/d_consultation_record_viewmodel.dart';
 import '/presentation/model/doctor/d_consultation_record.dart';
 import 'd_result_detail_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class DInferenceResultScreen extends StatefulWidget {
   final String baseUrl;
@@ -94,27 +95,24 @@ class _DInferenceResultScreenState extends State<DInferenceResultScreen> {
               ],
             ),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ResultDetailScreen(
-                    originalImageUrl: '$imageBaseUrl${record.originalImagePath}',
-                    processedImageUrls: {
-                      1: '$imageBaseUrl${record.processedImagePath}',
-                    },
-                    modelInfos: {
-                      1: {
-                        'model_used': record.modelUsed,
-                        'confidence': record.confidence ?? 0.0,
-                        'lesion_points': record.lesionPoints ?? [],
-                      },
-                    },
-                    userId: record.userId,
-                    inferenceResultId: record.id,
-                    baseUrl: widget.baseUrl,
-                  ),
-                ),
-              );
+              context.go('/result_detail', extra: {
+                'originalImageUrl': '$imageBaseUrl${record.originalImagePath}',
+                'processedImageUrls': {
+                  1: '$imageBaseUrl${record.processedImagePath}',
+                },
+                'modelInfos': {
+                  1: {
+                    'model_used': record.modelUsed,
+                    'confidence': record.confidence ?? 0.0,
+                    'lesion_points': record.lesionPoints ?? [],
+                  },
+                },
+                'userId': record.userId,
+                'inferenceResultId': record.id,
+                'baseUrl': widget.baseUrl,
+                'role': 'D',
+                'from': 'd_inference_result', // ✅ 추가
+              });
             },
           ),
         );

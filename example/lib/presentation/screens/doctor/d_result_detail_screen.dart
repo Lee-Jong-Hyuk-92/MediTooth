@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import '/presentation/viewmodel/auth_viewmodel.dart';
+import 'package:go_router/go_router.dart';
 
 class ResultDetailScreen extends StatefulWidget {
   final String originalImageUrl;
@@ -11,6 +12,8 @@ class ResultDetailScreen extends StatefulWidget {
   final String userId;
   final String inferenceResultId;
   final String baseUrl;
+  final String role;
+  final String from; // ✅ 추가
 
   const ResultDetailScreen({
     super.key,
@@ -20,6 +23,8 @@ class ResultDetailScreen extends StatefulWidget {
     required this.userId,
     required this.inferenceResultId,
     required this.baseUrl,
+    required this.role, // ✅ 추가
+    required this.from, // ✅ 추가
   });
 
   @override
@@ -113,6 +118,20 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
       appBar: AppBar(
         title: const Text('결과 이미지 상세 보기'),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (widget.role == 'D') {
+              context.go('/d_inference_result', extra: widget.baseUrl);
+            } else {
+              if (widget.from == 'upload') {
+                context.go('/upload', extra: widget.baseUrl);
+              } else if (widget.from == 'history') {
+                context.go('/history', extra: widget.baseUrl);
+              }
+            }
+          },
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
