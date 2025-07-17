@@ -12,17 +12,14 @@ class _DCalendarScreenState extends State<DCalendarScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
-  /// 샘플 예약 데이터 (실제로는 API 연동으로 교체 예정)
   final Map<DateTime, List<String>> _appointments = {
     DateTime.utc(2025, 7, 17): ['홍길동 환자 진료 10:00', '김영희 환자 진료 14:00'],
     DateTime.utc(2025, 7, 18): ['이순신 환자 진료 09:00'],
   };
 
-  /// 날짜를 '년-월-일'로 정규화 (시간 제거)
   DateTime _normalizeDate(DateTime date) =>
       DateTime.utc(date.year, date.month, date.day);
 
-  /// 선택한 날짜의 예약 리스트 반환
   List<String> _getEventsForDay(DateTime day) {
     return _appointments[_normalizeDate(day)] ?? [];
   }
@@ -30,6 +27,7 @@ class _DCalendarScreenState extends State<DCalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedDate = _selectedDay ?? _focusedDay;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -39,43 +37,70 @@ class _DCalendarScreenState extends State<DCalendarScreen> {
       ),
       body: Column(
         children: [
-          // 캘린더 UI
-          TableCalendar(
-            firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-              });
-            },
-            eventLoader: _getEventsForDay,
-            calendarStyle: const CalendarStyle(
-              todayDecoration: BoxDecoration(
-                color: Colors.blueAccent,
-                shape: BoxShape.circle,
-              ),
-              selectedDecoration: BoxDecoration(
-                color: Colors.deepPurple,
-                shape: BoxShape.circle,
-              ),
-              markerDecoration: BoxDecoration(
-                color: Colors.redAccent,
-                shape: BoxShape.circle,
-              ),
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-              titleTextStyle: TextStyle(fontSize: 18),
+            child: TableCalendar(
+              firstDay: DateTime.utc(2020, 1, 1),
+              lastDay: DateTime.utc(2030, 12, 31),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                });
+              },
+              eventLoader: _getEventsForDay,
+              calendarStyle: const CalendarStyle(
+                todayDecoration: BoxDecoration(
+                  color: Colors.blueAccent,
+                  shape: BoxShape.circle,
+                ),
+                selectedDecoration: BoxDecoration(
+                  color: Colors.deepPurple,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              calendarBuilders: CalendarBuilders(
+                markerBuilder: (context, date, events) {
+                  if (events.isNotEmpty) {
+                    return Positioned(
+                      bottom: 1,
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: Colors.redAccent,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                titleTextStyle: TextStyle(fontSize: 18),
+              ),
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
-          // 날짜 제목
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
@@ -91,7 +116,6 @@ class _DCalendarScreenState extends State<DCalendarScreen> {
 
           const SizedBox(height: 8),
 
-          // 예약 리스트
           Expanded(
             child: _getEventsForDay(selectedDate).isEmpty
                 ? const Center(
@@ -109,6 +133,7 @@ class _DCalendarScreenState extends State<DCalendarScreen> {
                           horizontal: 16,
                           vertical: 6,
                         ),
+                        elevation: 2,
                         child: ListTile(
                           leading: const Icon(Icons.access_time),
                           title: Text(
@@ -116,7 +141,7 @@ class _DCalendarScreenState extends State<DCalendarScreen> {
                             style: const TextStyle(fontSize: 16),
                           ),
                           onTap: () {
-                            // TODO: 예약 상세 페이지로 이동 or 팝업
+                            // TODO: 예약 상세 페이지로 이동
                           },
                         ),
                       );

@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '로그인',
+          '',
           style: textTheme.headlineLarge,
         ),
         elevation: 0,
