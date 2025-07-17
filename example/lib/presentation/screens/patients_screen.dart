@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
-class DPatientsScreen extends StatefulWidget {
-  final String baseUrl;
-  const DPatientsScreen({super.key, required this.baseUrl});
+class PatientsScreen extends StatefulWidget {
+  const PatientsScreen({super.key});
 
   @override
-  State<DPatientsScreen> createState() => _DPatientsScreenState();
+  State<PatientsScreen> createState() => _PatientsScreenState();
 }
 
-class _DPatientsScreenState extends State<DPatientsScreen> {
+class _PatientsScreenState extends State<PatientsScreen> {
   // 예시 환자 데이터
   final List<Map<String, dynamic>> patients = [
     {
@@ -48,6 +47,7 @@ class _DPatientsScreenState extends State<DPatientsScreen> {
     if (sortCriteria == '이름순') {
       list.sort((a, b) => a['name'].compareTo(b['name']));
     } else if (sortCriteria == '최근 방문순') {
+      // 날짜 문자열을 DateTime으로 변환 후 비교
       list.sort((a, b) => DateTime.parse(b['lastVisit']).compareTo(DateTime.parse(a['lastVisit'])));
     }
     return list;
@@ -133,7 +133,7 @@ class _DPatientsScreenState extends State<DPatientsScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => DPatientDetailScreen(patient: patient),
+                              builder: (_) => PatientDetailScreen(patient: patient),
                             ),
                           );
                         },
@@ -147,9 +147,9 @@ class _DPatientsScreenState extends State<DPatientsScreen> {
   }
 }
 
-class DPatientDetailScreen extends StatelessWidget {
+class PatientDetailScreen extends StatelessWidget {
   final Map<String, dynamic> patient;
-  const DPatientDetailScreen({super.key, required this.patient});
+  const PatientDetailScreen({super.key, required this.patient});
 
   @override
   Widget build(BuildContext context) {

@@ -12,11 +12,10 @@ import '/presentation/screens/doctor/d_real_home_screen.dart';
 import '/presentation/screens/doctor/d_telemedicine_application_screen.dart';
 import '/presentation/screens/doctor/d_inference_result_screen.dart';
 import '/presentation/screens/doctor/d_calendar_screen.dart';
-import '/presentation/screens/doctor/d_patients_screen.dart';
+import '/presentation/screens/doctor/d_patients_screen.dart'; // 추가된 부분
 import '/presentation/screens/doctor/d_requests_screen.dart';
 import '/presentation/screens/doctor/d_answers_screen.dart';
 import '/presentation/screens/doctor/d_pending_screen.dart';
-
 
 import '/presentation/viewmodel/doctor/d_dashboard_viewmodel.dart';
 import '/presentation/viewmodel/auth_viewmodel.dart';
@@ -30,11 +29,13 @@ import '/presentation/screens/history_screen.dart';
 import '/presentation/screens/clinics_screen.dart';
 import '/presentation/screens/camera_inference_screen.dart';
 
+// ──────────────────────────────
+
 GoRouter createRouter(String baseUrl) {
   return GoRouter(
     initialLocation: '/login',
     routes: [
-      // ───────── 로그인 / 회원가입 / Web Placeholder ─────────
+      // 로그인 / 회원가입 / Web Placeholder
       GoRoute(
         path: '/login',
         builder: (context, state) => LoginScreen(baseUrl: baseUrl),
@@ -48,7 +49,7 @@ GoRouter createRouter(String baseUrl) {
         builder: (context, state) => const WebPlaceholderScreen(),
       ),
 
-      // ───────── 의사 전용 ShellRoute ─────────
+      // 의사 전용 ShellRoute
       ShellRoute(
         builder: (context, state, child) => child,
         routes: [
@@ -73,7 +74,7 @@ GoRouter createRouter(String baseUrl) {
             },
           ),
 
-          // ─── 통계 카드 3개가 눌렀을 때 이동할 화면 추가 ───
+          // 통계 카드 3개 화면 이동
           GoRoute(
             path: '/d_requests',
             builder: (context, state) {
@@ -122,7 +123,7 @@ GoRouter createRouter(String baseUrl) {
             },
           ),
 
-          // 환자 목록
+          // 환자 목록 화면 연결 ← 여기가 중요!
           GoRoute(
             path: '/d_patients',
             builder: (context, state) {
@@ -130,7 +131,8 @@ GoRouter createRouter(String baseUrl) {
               return DPatientsScreen(baseUrl: passedBaseUrl);
             },
           ),
-          // 설정 화면 (원하면 추가)
+
+          // 설정 화면 (필요시)
           GoRoute(
             path: '/d_settings',
             builder: (context, state) {
@@ -145,7 +147,7 @@ GoRouter createRouter(String baseUrl) {
         ],
       ),
 
-      // ───────── 일반 사용자 ShellRoute (기존) ─────────
+      // 일반 사용자 ShellRoute
       ShellRoute(
         builder: (context, state, child) => MainScaffold(
           child: child,
