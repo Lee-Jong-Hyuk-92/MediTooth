@@ -7,7 +7,6 @@ import '/presentation/viewmodel/userinfo_viewmodel.dart';
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
 
-  // 스낵바 표시 유틸리티 함수
   void _showSnack(BuildContext context, String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -20,7 +19,6 @@ class MyPageScreen extends StatelessWidget {
     );
   }
 
-  // 회원 탈퇴 확인 다이얼로그 표시
   Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
     final userInfoViewModel = context.read<UserInfoViewModel>();
     final authViewModel = context.read<AuthViewModel>();
@@ -45,14 +43,9 @@ class MyPageScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '정말로 회원 탈퇴하시겠습니까?',
-                style: TextStyle(fontSize: 15),
-              ),
-              const Text(
-                '모든 데이터가 삭제되며 복구할 수 없습니다.',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
+              const Text('정말로 회원 탈퇴하시겠습니까?', style: TextStyle(fontSize: 15)),
+              const Text('모든 데이터가 삭제되며 복구할 수 없습니다.',
+                  style: TextStyle(fontSize: 14, color: Colors.grey)),
               const SizedBox(height: 20),
               TextFormField(
                 controller: passwordController,
@@ -62,7 +55,6 @@ class MyPageScreen extends StatelessWidget {
                   hintText: '비밀번호 입력',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.grey),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -82,17 +74,15 @@ class MyPageScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                // ✅ username 대신 registerId 사용
                 final registerId = userInfoViewModel.user!.registerId;
                 final password = passwordController.text;
-                final role = userInfoViewModel.user!.role; // 역할도 함께 전달
+                final role = userInfoViewModel.user!.role;
 
                 if (password.isEmpty) {
                   _showSnack(dialogContext, '비밀번호를 입력해주세요.');
                   return;
                 }
 
-                // deleteUser 함수 호출 시 registerId와 role을 함께 전달
                 final error = await authViewModel.deleteUser(registerId, password, role);
 
                 if (error == null) {
@@ -120,147 +110,165 @@ class MyPageScreen extends StatelessWidget {
     }
   }
 
+  Future<bool> _onWillPop(BuildContext context) async {
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('앱 종료'),
+        content: const Text('앱을 종료하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('종료'),
+          ),
+        ],
+      ),
+    );
+    return shouldExit ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final userInfoViewModel = context.watch<UserInfoViewModel>();
     final user = userInfoViewModel.user;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          '마이페이지',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+    return WillPopScope(
+      onWillPop: () => _onWillPop(context),
+      child: Scaffold(
+        backgroundColor: const Color(0xFF376193),
+        appBar: AppBar(
+          title: const Text('마이페이지', style: TextStyle(color: Colors.black87)),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          elevation: 1,
         ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 사용자 정보 섹션
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              margin: const EdgeInsets.only(bottom: 30),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 8,
+                  offset: Offset(0, 3),
+                )
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Center(
+                  child: Text(
+                    '내 정보',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                Row(
                   children: [
-                    const Text(
-                      '내 정보',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueAccent,
-                      ),
-                    ),
-                    const Divider(height: 20, thickness: 1),
-                    Row(
-                      children: [
-                        const Icon(Icons.person, color: Colors.grey, size: 20),
-                        const SizedBox(width: 10),
-                        Text(
-                          '이름: ${user?.name ?? '로그인 필요'}',
-                          style: const TextStyle(fontSize: 17, color: Colors.black87),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(Icons.email, color: Colors.grey, size: 20),
-                        const SizedBox(width: 10),
-                        Text(
-                          // ✅ username 대신 registerId 사용
-                          '아이디: ${user?.registerId ?? '로그인 필요'}',
-                          style: const TextStyle(fontSize: 17, color: Colors.black87),
-                        ),
-                      ],
+                    const Icon(Icons.person_outline, color: Colors.grey, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      '이름: ${user?.name ?? '로그인 필요'}',
+                      style: const TextStyle(fontSize: 17, color: Colors.black87),
                     ),
                   ],
                 ),
-              ),
-            ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(Icons.email_outlined, color: Colors.grey, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      '아이디: ${user?.registerId ?? '로그인 필요'}',
+                      style: const TextStyle(fontSize: 17, color: Colors.black87),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                const Divider(height: 1),
 
-            // 계정 설정 섹션
-            const Text(
-              '계정 설정',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 15),
+                const SizedBox(height: 24),
+                const Text(
+                  '계정 설정',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 20),
 
-            // 개인정보 수정 버튼
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  context.go('/mypage/edit'); // ✅ EditProfileScreen으로 이동
-                },
-                icon: const Icon(Icons.edit, color: Colors.white),
-                label: const Text(
-                  '개인정보 수정',
-                  style: TextStyle(fontSize: 17, color: Colors.white),
+                _buildFullButton(
+                  label: '개인정보 수정',
+                  icon: Icons.edit,
+                  color: Colors.blueAccent,
+                  textColor: Colors.white,
+                  onTap: () => context.go('/mypage/edit'),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 3,
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
+                const SizedBox(height: 15),
 
-            // 로그아웃 버튼
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  userInfoViewModel.clearUser();
-                  _showSnack(context, '로그아웃 되었습니다.');
-                  context.go('/login');
-                },
-                icon: const Icon(Icons.logout, color: Colors.black87),
-                label: const Text(
-                  '로그아웃',
-                  style: TextStyle(fontSize: 17, color: Colors.black87),
+                _buildFullButton(
+                  label: '로그아웃',
+                  icon: Icons.logout,
+                  color: Colors.white,
+                  textColor: Colors.black87,
+                  border: BorderSide(color: Colors.grey.shade300),
+                  onTap: () {
+                    userInfoViewModel.clearUser();
+                    _showSnack(context, '로그아웃 되었습니다.');
+                    context.go('/login');
+                  },
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[200],
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 3,
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
+                const SizedBox(height: 15),
 
-            // 회원탈퇴 버튼
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _showDeleteConfirmationDialog(context),
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                label: const Text(
-                  '회원탈퇴',
-                  style: TextStyle(fontSize: 17, color: Colors.red),
+                _buildFullButton(
+                  label: '회원탈퇴',
+                  icon: Icons.delete_outline,
+                  color: Colors.white,
+                  textColor: Colors.red,
+                  border: const BorderSide(color: Colors.red, width: 1.5),
+                  onTap: () => _showDeleteConfirmationDialog(context),
                 ),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  side: const BorderSide(color: Colors.red, width: 1.5),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
+              ],
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFullButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required Color textColor,
+    VoidCallback? onTap,
+    BorderSide? border,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, color: textColor),
+        label: Text(label, style: TextStyle(fontSize: 16, color: textColor)),
+        style: OutlinedButton.styleFrom(
+          backgroundColor: color,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: border ?? BorderSide.none,
         ),
       ),
     );

@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import '/presentation/viewmodel/doctor/d_consultation_record_viewmodel.dart';
 import '/presentation/viewmodel/auth_viewmodel.dart';
 import '/presentation/model/doctor/d_consultation_record.dart';
-import 'doctor/d_result_detail_screen.dart';
+import 'result_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   final String baseUrl;
@@ -33,7 +33,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final currentUser = authViewModel.currentUser;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('이전 진단 기록')),
+      appBar: AppBar(
+        title: const Text('이전 진단 기록'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF3869A8),
+        foregroundColor: Colors.white,
+      ),
+      backgroundColor: const Color(0xFFDCE7F6),
       body: viewModel.isLoading
           ? const Center(child: CircularProgressIndicator())
           : viewModel.error != null
@@ -57,7 +63,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       });
 
     return ListView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       itemCount: sortedRecords.length,
       itemBuilder: (context, index) {
         final record = sortedRecords[index];
@@ -71,16 +77,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
           formattedTime = '시간 파싱 오류';
         }
 
-        return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          margin: const EdgeInsets.symmetric(vertical: 8),
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF3869A8), width: 1.5),
+          ),
           child: ListTile(
-            title: Text('[$listIndex] $formattedTime'),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            title: Text(
+              '[$listIndex] $formattedTime',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text('사용자 ID: ${record.userId}'),
                 Text('파일명: ${record.originalImageFilename}'),
               ],
@@ -96,14 +109,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     },
                     modelInfos: {
                       1: {
-                        'model_used': record.modelUsed, // ✅ DB에서 불러온 값 사용
+                        'model_used': record.modelUsed,
                         'confidence': record.confidence ?? 0.0,
                         'lesion_points': record.lesionPoints ?? [],
                       },
                     },
-                    userId: record.userId, // ✅ 추가
+                    userId: record.userId,
                     inferenceResultId: record.id,
-                    baseUrl: widget.baseUrl, // ✅ 여기를 수정
+                    baseUrl: widget.baseUrl,
                   ),
                 ),
               );

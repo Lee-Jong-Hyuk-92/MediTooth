@@ -20,6 +20,7 @@ dependencies:
   provider: ^6.1.1         # ✅ 추가된 부분
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
+  location: ^5.0.3 # 또는 사용 중인 버전에 맞게
   cached_network_image: ^3.3.1  # ✅ 최신 버전 또는 안정 버전 명시
   permission_handler: ^11.0.0
   image_gallery_saver:
@@ -45,9 +46,11 @@ flutter:
   assets:
     - assets/
     - assets/models/
+    - assets/icon/cdss-icon_500.png
     - assets/logo.png
     - assets/applogo.png
     - assets/models/dental_best_float32.tflite
+    
 
 flutter_launcher_icons:
   android: true
