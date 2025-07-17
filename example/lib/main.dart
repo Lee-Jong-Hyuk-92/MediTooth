@@ -50,6 +50,8 @@ class YOLOExampleApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routerConfig: createRouter(baseUrl),
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,      // 다크 테마 추가
+      themeMode: ThemeMode.system,        // 시스템 다크모드 자동 적용
     );
   }
 }
