@@ -15,6 +15,8 @@ class ResultDetailScreen extends StatefulWidget {
   final String baseUrl;
   final String role;
   final String from;
+  final String? doctorId;
+  final String? requestId;
 
   const ResultDetailScreen({
     super.key,
@@ -26,6 +28,8 @@ class ResultDetailScreen extends StatefulWidget {
     required this.baseUrl,
     required this.role,
     required this.from,
+    this.doctorId,
+    this.requestId,
   });
 
   @override
@@ -37,6 +41,8 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
   bool _alreadyApplied = false;
   bool _isThisImageApplied = false;
   String? _requestId;
+  final TextEditingController _commentController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -65,32 +71,65 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
             _isThisImageApplied = false;
           });
         }
-      } else {
-        setState(() {
-          _alreadyApplied = false;
-          _requestId = null;
-          _isThisImageApplied = false;
-        });
       }
     } catch (e) {
       print("❌ 신청 여부 확인 실패: $e");
+    }
+  }
+
+  Future<void> _submitDoctorReply() async {
+    if (widget.requestId == null || widget.doctorId == null) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final url = '${widget.baseUrl}/consult/reply';
+    final now = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'request_id': widget.requestId,
+          'doctor_id': widget.doctorId,
+          'comment': _commentController.text,
+          'reply_datetime': now,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ 답변이 저장되었습니다.')),
+        );
+        _commentController.clear();
+      } else {
+        final errorMsg = jsonDecode(response.body)['error'] ?? '오류 발생';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ 저장 실패: $errorMsg')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ 네트워크 오류: $e')),
+      );
+    } finally {
       setState(() {
-        _alreadyApplied = false;
-        _requestId = null;
-        _isThisImageApplied = false;
+        _isSubmitting = false;
       });
     }
   }
 
   Future<void> _applyConsultation() async {
-    final String apiUrl = "${widget.baseUrl}/consult";
+    final url = "${widget.baseUrl}/consult";
     final now = DateTime.now();
     final formattedDatetime = DateFormat('yyyyMMddHHmmss').format(now);
     final imagePath = Uri.parse(widget.originalImageUrl).path;
 
     try {
       final response = await http.post(
-        Uri.parse(apiUrl),
+        Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           "user_id": widget.userId,
@@ -106,11 +145,6 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('✅ 신청이 완료되었습니다.')),
-        );
-      } else {
-        final errorMsg = jsonDecode(response.body)['error'] ?? '알 수 없는 오류';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ 신청 실패: $errorMsg')),
         );
       }
     } catch (e) {
@@ -140,11 +174,6 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('🗑 신청이 취소되었습니다.')),
         );
-      } else {
-        final errorMsg = jsonDecode(response.body)['error'] ?? '알 수 없는 오류';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ 취소 실패: $errorMsg')),
-        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -157,15 +186,12 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final currentUser = Provider.of<AuthViewModel>(context, listen: false).currentUser;
-
     final imageUrl = (_selectedModelIndex != null)
         ? widget.processedImageUrls[_selectedModelIndex!] ?? widget.originalImageUrl
         : widget.originalImageUrl;
-
     final modelInfo = (_selectedModelIndex != null)
         ? widget.modelInfos[_selectedModelIndex!]
         : null;
-
     final double? confidence = modelInfo?['confidence'];
     final String? modelName = modelInfo?['model_used'];
     const className = "Dental Plaque";
@@ -208,7 +234,7 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 imageUrl,
-                height: MediaQuery.of(context).size.height * 0.45,
+                height: MediaQuery.of(context).size.height * 0.4,
                 fit: BoxFit.contain,
               ),
             ),
@@ -235,6 +261,26 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
                     )
                   : const SizedBox(height: 60),
             ),
+            if (widget.role == 'D' && widget.requestId != null) ...[
+              const SizedBox(height: 16),
+              TextField(
+                controller: _commentController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '의사 코멘트 입력',
+                ),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.save),
+                  label: _isSubmitting ? const Text("저장 중...") : const Text("답변 저장"),
+                  onPressed: _isSubmitting ? null : _submitDoctorReply,
+                ),
+              ),
+            ],
             const Spacer(),
             Row(
               children: [
@@ -251,14 +297,28 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
                 ),
                 const SizedBox(width: 12),
                 if (currentUser?.role == 'P')
-                  Expanded(
-                    child: _buildConsultButton(),
-                  ),
+                  Expanded(child: _buildConsultButton()),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSwitch(String label, int index) {
+    return Column(
+      children: [
+        Switch(
+          value: _selectedModelIndex == index,
+          onChanged: (val) {
+            setState(() {
+              _selectedModelIndex = val ? index : null;
+            });
+          },
+        ),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
     );
   }
 
@@ -285,21 +345,5 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
         onPressed: _applyConsultation,
       );
     }
-  }
-
-  Widget _buildSwitch(String label, int index) {
-    return Column(
-      children: [
-        Switch(
-          value: _selectedModelIndex == index,
-          onChanged: (val) {
-            setState(() {
-              _selectedModelIndex = val ? index : null;
-            });
-          },
-        ),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ],
-    );
   }
 }

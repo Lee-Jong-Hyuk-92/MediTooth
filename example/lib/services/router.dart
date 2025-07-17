@@ -103,6 +103,24 @@ GoRouter createRouter(String baseUrl) {
               );
             },
           ),
+          GoRoute(
+            path: '/d_result_detail',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+              return ResultDetailScreen(
+                baseUrl: extra?['baseUrl'] ?? '',
+                originalImageUrl: extra?['originalImageUrl'] ?? '',
+                processedImageUrls: Map<int, String>.from(extra?['processedImageUrls'] ?? {}),
+                modelInfos: Map<int, Map<String, dynamic>>.from(extra?['modelInfos'] ?? {}),
+                userId: extra?['userId'] ?? '',
+                inferenceResultId: extra?['inferenceResultId'] ?? '',
+                role: extra?['role'] ?? '',
+                from: extra?['from'] ?? '',
+                doctorId: extra?['doctorId'],
+                requestId: extra?['requestId'],
+              );
+            },
+          ),
         ],
       ),
 
