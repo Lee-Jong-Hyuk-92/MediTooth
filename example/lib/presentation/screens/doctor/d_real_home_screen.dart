@@ -101,7 +101,7 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
     final int pending = (vm.requestsToday - vm.answeredToday).clamp(0, 1 << 31);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF7cf5ff), // ✅ 연한 하늘색 배경 추가
+      backgroundColor: const Color(0xFFaed2ff), // ✅ 연한 하늘색 배경 추가
       appBar: AppBar(
         title: const Text('의사 대시보드 홈'),
         backgroundColor: Colors.blueAccent,
@@ -161,7 +161,7 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
             Text('오늘의 진료 현황',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
+                      color:  Color(0xFF9681EB),
                     )),
             const SizedBox(height: 15),
             Row(
@@ -190,11 +190,11 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.blueAccent,
-                    )),
+                    )),  
             const SizedBox(height: 5),
-            Text(title,
+            Text(title, 
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[700],
+                      color: Color(0xFF9681EB),
                     )),
           ],
         ),

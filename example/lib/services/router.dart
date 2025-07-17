@@ -115,7 +115,7 @@ GoRouter createRouter(String baseUrl) {
             builder: (context, state) {
               final passedBaseUrl = state.extra as String? ?? baseUrl;
               return Scaffold(
-                appBar: AppBar(title: const Text('진료 캘린더')),
+                appBar: AppBar(title: const Text('예약 캘린더')),
                 drawer: DoctorDrawer(baseUrl: passedBaseUrl),
                 body: DCalendarScreen(),
               );

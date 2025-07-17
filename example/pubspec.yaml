@@ -11,19 +11,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   flutter_launcher_icons: ^0.14.4
   image_picker: ^1.1.2
   path_provider: ^2.0.0
   archive: ^4.0.7
   http: ^1.2.1
   go_router: ^16.0.0
-  provider: ^6.1.1         # ✅ 추가된 부분
+  provider: ^6.1.1
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
   cached_network_image: ^3.3.1
   permission_handler: ^11.0.0
   image_gallery_saver:
     path: packages/image_gallery_saver
+  table_calendar: ^3.0.9
 
   ultralytics_yolo:
     path: ../
@@ -43,7 +45,7 @@ flutter:
 
   assets:
     - assets/
-    - assets/images/                            # ✅ 치아 캐릭터 이미지 폴더 추가
+    - assets/images/          # 치아 캐릭터 이미지 폴더
     - assets/models/
     - assets/logo.png
     - assets/applogo.png
