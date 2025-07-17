@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
 import '/presentation/viewmodel/doctor/d_dashboard_viewmodel.dart';
 
 class DoctorDrawer extends StatelessWidget {
@@ -53,6 +52,8 @@ class DoctorDrawer extends StatelessWidget {
             title: '홈',
             onTap: () {
               Navigator.pop(context);
+              final viewModel = context.read<DoctorDashboardViewModel>();
+              viewModel.loadDashboardData(baseUrl); // ✅ 수동 새로고침
               context.go('/d_home', extra: baseUrl);
             },
           ),
@@ -143,13 +144,13 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = Provider.of<DoctorDashboardViewModel>(context, listen: false);
-      viewModel.loadDashboardData(widget.baseUrl);
+      viewModel.loadDashboardData(widget.baseUrl); // 💡 baseUrl 전달
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<DoctorDashboardViewModel>(context);
+    final viewModel = context.watch<DoctorDashboardViewModel>();
 
     return Scaffold(
       appBar: AppBar(

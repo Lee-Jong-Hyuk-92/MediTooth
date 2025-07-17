@@ -112,25 +112,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/login'),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              setState(() {
-                _selectedRole = value;
-                _isIdChecked = false;
-                _isDuplicate = true;
-                _registerIdController.clear();
-                authViewModel.clearDuplicateCheckErrorMessage();
-              });
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 'P', child: Text('환자')),
-              const PopupMenuItem(value: 'D', child: Text('의사')),
-            ],
-            icon: const Icon(Icons.account_circle),
-            tooltip: '사용자 유형 선택',
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -139,6 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             children: [
+              _buildRoleSelector(textTheme),
               _buildTextField(_nameController, '이름 (한글만)', keyboardType: TextInputType.name),
               _buildGenderSelector(textTheme),
               _buildTextField(
@@ -204,6 +186,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildRoleSelector(TextTheme textTheme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Text('계정 유형', style: textTheme.bodyMedium),
+          const SizedBox(width: 16),
+          Expanded(
+            child: RadioListTile<String>(
+              title: Text('환자', style: textTheme.labelLarge),
+              value: 'P',
+              groupValue: _selectedRole,
+              onChanged: (value) => setState(() => _selectedRole = value!),
+            ),
+          ),
+          Expanded(
+            child: RadioListTile<String>(
+              title: Text('의사', style: textTheme.labelLarge),
+              value: 'D',
+              groupValue: _selectedRole,
+              onChanged: (value) => setState(() => _selectedRole = value!),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -16,7 +16,7 @@ class MainScaffold extends StatelessWidget {
     // ✅ 하단 탭 순서에 맞춰 currentIndex 로직 변경 (챗봇:0, 홈:1, 마이페이지:2)
     if (location.startsWith('/chatbot')) { 
       currentIndex = 0;
-    } else if (location.startsWith('/home')) { 
+    } else if (location.startsWith('/home') || location.startsWith('/clinics')) { 
       currentIndex = 1;
     } else if (location.startsWith('/mypage')) { 
       currentIndex = 2;
@@ -26,7 +26,6 @@ class MainScaffold extends StatelessWidget {
       // 사진 진단, 진단 결과, 진단 기록 화면은 홈 탭으로 간주 (인덱스 1)
       currentIndex = 1; 
     }
-
 
     return Scaffold(
       // ShellRoute의 child 위젯을 Scaffold의 body에 표시
@@ -45,11 +44,9 @@ class MainScaffold extends StatelessWidget {
             case 2: // 마이페이지 탭
               context.go('/mypage');
               break;
-            // 다른 탭이 있다면 여기에 추가
           }
         },
         items: const [
-          // ✅ 하단 탭 바 아이템 순서 변경 (챗봇, 홈, 마이페이지)
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: '챗봇'),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: '마이페이지'),
