@@ -82,17 +82,15 @@ class MyPageScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                // ✅ username 대신 registerId 사용
                 final registerId = userInfoViewModel.user!.registerId;
                 final password = passwordController.text;
-                final role = userInfoViewModel.user!.role; // 역할도 함께 전달
+                final role = userInfoViewModel.user!.role;
 
                 if (password.isEmpty) {
                   _showSnack(dialogContext, '비밀번호를 입력해주세요.');
                   return;
                 }
 
-                // deleteUser 함수 호출 시 registerId와 role을 함께 전달
                 final error = await authViewModel.deleteUser(registerId, password, role);
 
                 if (error == null) {
@@ -124,6 +122,27 @@ class MyPageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final userInfoViewModel = context.watch<UserInfoViewModel>();
     final user = userInfoViewModel.user;
+
+    if (user == null) {
+      // 유저 정보 없으면 로그인 필요 안내 화면
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            '마이페이지',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+        ),
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () => context.go('/login'),
+            child: const Text('로그인이 필요합니다. 로그인 페이지로 이동'),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -164,7 +183,7 @@ class MyPageScreen extends StatelessWidget {
                         const Icon(Icons.person, color: Colors.grey, size: 20),
                         const SizedBox(width: 10),
                         Text(
-                          '이름: ${user?.name ?? '로그인 필요'}',
+                          '이름: ${user.name}',
                           style: const TextStyle(fontSize: 17, color: Colors.black87),
                         ),
                       ],
@@ -175,8 +194,7 @@ class MyPageScreen extends StatelessWidget {
                         const Icon(Icons.email, color: Colors.grey, size: 20),
                         const SizedBox(width: 10),
                         Text(
-                          // ✅ username 대신 registerId 사용
-                          '아이디: ${user?.registerId ?? '로그인 필요'}',
+                          '아이디: ${user.registerId}',
                           style: const TextStyle(fontSize: 17, color: Colors.black87),
                         ),
                       ],
@@ -202,7 +220,7 @@ class MyPageScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  context.go('/mypage/edit'); // ✅ EditProfileScreen으로 이동
+                  context.go('/mypage/edit'); // EditProfileScreen으로 이동
                 },
                 icon: const Icon(Icons.edit, color: Colors.white),
                 label: const Text(
@@ -243,20 +261,22 @@ class MyPageScreen extends StatelessWidget {
             ),
             const SizedBox(height: 15),
 
-            // 회원탈퇴 버튼
+            // 회원탈퇴 버튼 - 배경색 추가, 텍스트와 아이콘 색은 진한 빨강 유지
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton.icon(
+              child: ElevatedButton.icon(
                 onPressed: () => _showDeleteConfirmationDialog(context),
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
                 label: const Text(
                   '회원탈퇴',
                   style: TextStyle(fontSize: 17, color: Colors.red),
                 ),
-                style: OutlinedButton.styleFrom(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade100,
                   padding: const EdgeInsets.symmetric(vertical: 15),
-                  side: const BorderSide(color: Colors.red, width: 1.5),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
                 ),
               ),
             ),
