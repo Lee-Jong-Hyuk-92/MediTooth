@@ -37,4 +37,25 @@ class ConsultationRecordViewModel with ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
+
+  Future<void> deleteRecord(String id) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final res = await http.delete(Uri.parse('$baseUrl/records/$id'));
+
+      if (res.statusCode == 200) {
+        _records.removeWhere((record) => record.id == id);
+        _error = null;
+      } else {
+        _error = '삭제 실패: ${res.statusCode}';
+      }
+    } catch (e) {
+      _error = '삭제 중 오류 발생: $e';
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
 }

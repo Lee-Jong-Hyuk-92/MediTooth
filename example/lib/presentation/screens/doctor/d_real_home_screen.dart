@@ -101,7 +101,7 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
     final int pending = (vm.requestsToday - vm.answeredToday).clamp(0, 1 << 31);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFc4d9ff), // ✅ 연한 하늘색 배경 추가
+      backgroundColor: const Color(0xFF7cf5ff), // ✅ 연한 하늘색 배경 추가
       appBar: AppBar(
         title: const Text('의사 대시보드 홈'),
         backgroundColor: Colors.blueAccent,

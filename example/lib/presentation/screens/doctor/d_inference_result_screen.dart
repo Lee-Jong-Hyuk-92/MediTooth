@@ -47,20 +47,21 @@ class _DInferenceResultScreenState extends State<DInferenceResultScreen> {
                     style: textTheme.bodyMedium,
                   ),
                 )
-              : _buildListView(viewModel.records, textTheme),
+              : _buildListView(viewModel, textTheme),
     );
   }
 
-  Widget _buildListView(List<ConsultationRecord> records, TextTheme textTheme) {
-    final sortedRecords = List.from(records)..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  Widget _buildListView(ConsultationRecordViewModel viewModel, TextTheme textTheme) {
+    final records = List.from(viewModel.records)
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
     final imageBaseUrl = widget.baseUrl.replaceAll('/api', '');
 
     return ListView.builder(
       padding: const EdgeInsets.all(12),
-      itemCount: sortedRecords.length,
+      itemCount: records.length,
       itemBuilder: (context, index) {
-        final record = sortedRecords[index];
-        final listIndex = sortedRecords.length - index;
+        final record = records[index];
+        final listIndex = records.length - index;
 
         String formattedTime = '시간 정보 없음';
         try {
@@ -93,6 +94,10 @@ class _DInferenceResultScreenState extends State<DInferenceResultScreen> {
                 Text('파일명: ${record.originalImageFilename}', style: textTheme.bodyMedium),
               ],
             ),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.redAccent),
+              onPressed: () => _confirmDelete(record.id),
+            ),
             onTap: () {
               Navigator.push(
                 context,
@@ -120,5 +125,23 @@ class _DInferenceResultScreenState extends State<DInferenceResultScreen> {
         );
       },
     );
+  }
+
+  void _confirmDelete(String id) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('삭제 확인'),
+        content: const Text('이 진단 결과를 삭제하시겠습니까?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('취소')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('삭제')),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await context.read<ConsultationRecordViewModel>().deleteRecord(id);
+    }
   }
 }
