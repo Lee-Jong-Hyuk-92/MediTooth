@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '/presentation/viewmodel/auth_viewmodel.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,64 +34,122 @@ class ResultDetailScreen extends StatefulWidget {
 
 class _ResultDetailScreenState extends State<ResultDetailScreen> {
   int? _selectedModelIndex = 1;
+  bool _alreadyApplied = false;
+  bool _isThisImageApplied = false;
+  String? _requestId;
 
-  Future<void> _showAddressDialogAndApply() async {
-    final TextEditingController controller = TextEditingController();
-    final String apiUrl = "${widget.baseUrl}/apply";
+  @override
+  void initState() {
+    super.initState();
+    _checkAlreadyApplied();
+  }
 
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("주소 입력", style: Theme.of(context).textTheme.titleLarge),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(hintText: "상세 주소를 입력하세요"),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("취소"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: const Text("확인"),
-            ),
-          ],
-        );
-      },
-    );
+  Future<void> _checkAlreadyApplied() async {
+    final originalPath = Uri.parse(widget.originalImageUrl).path;
+    final url = '${widget.baseUrl}/consult/active?user_id=${widget.userId}';
 
-    if (result != null && result.isNotEmpty) {
-      try {
-        final response = await http.post(
-          Uri.parse(apiUrl),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            "user_id": widget.userId,
-            "location": result,
-            "inference_result_id": widget.inferenceResultId,
-          }),
-        );
-
-        if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('✅ 신청이 완료되었습니다.')),
-          );
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['request_id'] != null && data['image_path'] != null) {
+          setState(() {
+            _alreadyApplied = true;
+            _requestId = data['request_id'].toString();
+            _isThisImageApplied = data['image_path'] == originalPath;
+          });
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '❌ 신청 실패: ${jsonDecode(response.body)['error'] ?? '알 수 없는 오류'}',
-              ),
-            ),
-          );
+          setState(() {
+            _alreadyApplied = false;
+            _requestId = null;
+            _isThisImageApplied = false;
+          });
         }
-      } catch (e) {
+      } else {
+        setState(() {
+          _alreadyApplied = false;
+          _requestId = null;
+          _isThisImageApplied = false;
+        });
+      }
+    } catch (e) {
+      print("❌ 신청 여부 확인 실패: $e");
+      setState(() {
+        _alreadyApplied = false;
+        _requestId = null;
+        _isThisImageApplied = false;
+      });
+    }
+  }
+
+  Future<void> _applyConsultation() async {
+    final String apiUrl = "${widget.baseUrl}/consult";
+    final now = DateTime.now();
+    final formattedDatetime = DateFormat('yyyyMMddHHmmss').format(now);
+    final imagePath = Uri.parse(widget.originalImageUrl).path;
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "user_id": widget.userId,
+          "image_path": imagePath,
+          "request_datetime": formattedDatetime,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          _alreadyApplied = true;
+          _isThisImageApplied = true;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ 서버 오류: \$e')),
+          const SnackBar(content: Text('✅ 신청이 완료되었습니다.')),
+        );
+      } else {
+        final errorMsg = jsonDecode(response.body)['error'] ?? '알 수 없는 오류';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ 신청 실패: $errorMsg')),
         );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ 서버 오류: $e')),
+      );
+    }
+  }
+
+  Future<void> _cancelConsultation() async {
+    if (_requestId == null) return;
+    final url = '${widget.baseUrl}/consult/cancel';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"request_id": _requestId}),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _alreadyApplied = false;
+          _isThisImageApplied = false;
+          _requestId = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('🗑 신청이 취소되었습니다.')),
+        );
+      } else {
+        final errorMsg = jsonDecode(response.body)['error'] ?? '알 수 없는 오류';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ 취소 실패: $errorMsg')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ 서버 오류: $e')),
+      );
     }
   }
 
@@ -99,7 +158,7 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
     final textTheme = Theme.of(context).textTheme;
     final currentUser = Provider.of<AuthViewModel>(context, listen: false).currentUser;
 
-    final String imageUrl = (_selectedModelIndex != null)
+    final imageUrl = (_selectedModelIndex != null)
         ? widget.processedImageUrls[_selectedModelIndex!] ?? widget.originalImageUrl
         : widget.originalImageUrl;
 
@@ -109,7 +168,7 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
 
     final double? confidence = modelInfo?['confidence'];
     final String? modelName = modelInfo?['model_used'];
-    final String className = "Dental Plaque";
+    const className = "Dental Plaque";
 
     return Scaffold(
       appBar: AppBar(
@@ -136,7 +195,6 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // 토글 버튼들 (가로 정렬)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -146,8 +204,6 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
               ],
             ),
             const SizedBox(height: 12),
-
-            // 이미지 표시
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
@@ -157,8 +213,6 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
               ),
             ),
             const SizedBox(height: 12),
-
-            // 예측 정보
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -173,18 +227,15 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
                         Text('📊 AI 예측 결과:', style: textTheme.titleMedium),
                         const SizedBox(height: 6),
                         if (modelName != null)
-                          Text('・모델: \$modelName', style: textTheme.bodyMedium),
+                          Text('・모델: $modelName', style: textTheme.bodyMedium),
                         if (confidence != null)
-                          Text('・확신도: \${(confidence * 100).toStringAsFixed(1)}%', style: textTheme.bodyMedium),
-                        Text('・클래스: \$className', style: textTheme.bodyMedium),
+                          Text('・확신도: ${(confidence * 100).toStringAsFixed(1)}%', style: textTheme.bodyMedium),
+                        Text('・클래스: $className', style: textTheme.bodyMedium),
                       ],
                     )
-                  : const SizedBox(height: 60), // 자리만 유지
+                  : const SizedBox(height: 60),
             ),
-
             const Spacer(),
-
-            // 하단 버튼들
             Row(
               children: [
                 Expanded(
@@ -201,12 +252,7 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
                 const SizedBox(width: 12),
                 if (currentUser?.role == 'P')
                   Expanded(
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.local_hospital),
-                      label: const Text("비대면 진료 신청하기"),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                      onPressed: _showAddressDialogAndApply,
-                    ),
+                    child: _buildConsultButton(),
                   ),
               ],
             ),
@@ -214,6 +260,31 @@ class _ResultDetailScreenState extends State<ResultDetailScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildConsultButton() {
+    if (_alreadyApplied && _isThisImageApplied) {
+      return ElevatedButton.icon(
+        icon: const Icon(Icons.cancel),
+        label: const Text("신청 취소"),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+        onPressed: _cancelConsultation,
+      );
+    } else if (_alreadyApplied && !_isThisImageApplied) {
+      return ElevatedButton.icon(
+        icon: const Icon(Icons.block),
+        label: const Text("신청 불가"),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+        onPressed: null,
+      );
+    } else {
+      return ElevatedButton.icon(
+        icon: const Icon(Icons.local_hospital),
+        label: const Text("비대면 진료 신청하기"),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+        onPressed: _applyConsultation,
+      );
+    }
   }
 
   Widget _buildSwitch(String label, int index) {

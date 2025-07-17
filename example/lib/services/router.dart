@@ -18,8 +18,7 @@ import '/presentation/screens/mypage_screen.dart';
 import '/presentation/screens/upload_screen.dart';
 import '/presentation/screens/history_screen.dart';
 import '/presentation/screens/clinics_screen.dart';
-import '/presentation/screens/doctor/d_result_detail_screen.dart'; // ✅ 결과 화면
-
+import '/presentation/screens/doctor/d_result_detail_screen.dart'; // ✅ 환자 결과 화면
 import '/presentation/viewmodel/doctor/d_dashboard_viewmodel.dart';
 
 GoRouter createRouter(String baseUrl) {
@@ -197,6 +196,29 @@ GoRouter createRouter(String baseUrl) {
               return CameraInferenceScreen(
                 baseUrl: data['baseUrl'] ?? '',
                 userId: data['userId'] ?? 'guest',
+              );
+            },
+          ),
+          GoRoute(
+            path: '/d_consult_request_comment',
+            builder: (context, state) {
+              final data = state.extra as Map<String, dynamic>;
+              return ResultDetailScreen(
+                originalImageUrl: data['originalImageUrl'],
+                processedImageUrls: Map<int, String>.from(data['processedImageUrls']),
+                modelInfos: Map<int, Map<String, dynamic>>.from(
+                  (data['modelInfos'] ?? {}).map(
+                    (key, value) => MapEntry(
+                      int.parse(key.toString()),
+                      Map<String, dynamic>.from(value),
+                    ),
+                  ),
+                ),
+                userId: data['userId'],
+                inferenceResultId: data['inferenceResultId'],
+                baseUrl: data['baseUrl'],
+                role: data['role'],
+                from: data['from'],
               );
             },
           ),
