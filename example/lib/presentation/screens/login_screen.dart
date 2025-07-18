@@ -22,7 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   String _selectedRole = 'P';
 
   Future<void> login() async {
-    print('로그인 버튼 클릭됨');
     final authViewModel = context.read<AuthViewModel>();
     final userInfoViewModel = context.read<UserInfoViewModel>();
 
@@ -33,34 +32,26 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('아이디와 비밀번호를 입력해주세요')),
       );
-      print('아이디 또는 비밀번호 누락');
       return;
     }
 
-    print('로그인 시도: ID=$registerId, Role=$_selectedRole');
     try {
       final user = await authViewModel.loginUser(registerId, password, _selectedRole);
-      print('loginUser 결과: $user');
 
       if (user != null) {
         userInfoViewModel.loadUser(user);
-        print('로그인 성공. 사용자 역할: ${user.role}');
         if (user.role == 'D') {
           context.go('/d_home');
-          print('의사 홈으로 이동: /d_home');
         } else {
           context.go('/home', extra: {'userId': user.registerId});
-          print('환자 홈으로 이동: /home, userId: ${user.registerId}');
         }
       } else {
         final error = authViewModel.errorMessage ?? '로그인 실패';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(error)),
         );
-        print('로그인 실패: $error');
       }
     } catch (e) {
-      print('로그인 중 예외 발생: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('로그인 처리 중 오류 발생: ${e.toString()}')),
       );
@@ -69,94 +60,149 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '로그인',
-          style: textTheme.headlineLarge,
-        ),
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 👇 여기에 추가
-            Column(
+      backgroundColor: const Color(0xFF376193), // ✅ 파란 외부 배경
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
+                // ✅ 로고 아이콘 (이미지 경로 수정)
                 Image.asset(
-                  'assets/images/meditooth_logo.png',
-                  height: 120, // 원하는 크기 조절
+                  'assets/icon/cdss-icon_500.png',
+                  width: 100,
+                  height: 100,
+                ),
+                const SizedBox(height: 24),
+
+                // 역할 선택 카드
+                Row(
+                  children: [
+                    _buildRoleCard('환자', 'P', Icons.person),
+                    const SizedBox(width: 12),
+                    _buildRoleCard('의사', 'D', Icons.medical_services),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // 아이디 입력
+                TextField(
+                  controller: registerIdController,
+                  decoration: InputDecoration(
+                    labelText: '아이디',
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 비밀번호 입력
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: '비밀번호',
+                    prefixIcon: Icon(Icons.lock_outline),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // 로그인 버튼
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: login,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('로그인', style: TextStyle(fontSize: 16)),
+                  ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  '안녕하세요! MediTooth 입니다.',
-                  style: textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            // 기존 사용자 유형 선택부터 아래는 그대로 유지
-            Row(
-              children: [
-                Text(
-                  '사용자 유형:',
-                  style: textTheme.bodyMedium,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: Text('환자', style: textTheme.labelLarge),
-                    value: 'P',
-                    groupValue: _selectedRole,
-                    onChanged: (value) => setState(() => _selectedRole = value!),
-                  ),
-                ),
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: Text('의사', style: textTheme.labelLarge),
-                    value: 'D',
-                    groupValue: _selectedRole,
-                    onChanged: (value) => setState(() => _selectedRole = value!),
+
+                // 회원가입 버튼
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => context.go('/register'),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.blueAccent),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('회원가입 하기', style: TextStyle(color: Colors.blueAccent)),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: registerIdController,
-              decoration: const InputDecoration(
-                labelText: '아이디',
-              ),
+          ),
+        ),
+      ),
+    );
+  }
+
+    Widget _buildRoleCard(String label, String roleValue, IconData icon) {
+    final isSelected = _selectedRole == roleValue;
+
+    // 역할에 따른 색상 정의
+    Color selectedColor;
+    Color borderColor;
+
+    if (roleValue == 'P') {
+      selectedColor = Color(0xFFFFE36A); // 노란색
+      borderColor = Colors.amber;
+    } else {
+      selectedColor = Color(0xFFA0E6B2); // 연초록
+      borderColor = Colors.green;
+    }
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedRole = roleValue),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: isSelected ? selectedColor : Colors.grey[200],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? borderColor : Colors.transparent,
+              width: 2,
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: '비밀번호',
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: login,
-                child: const Text('로그인'),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => context.go('/register'),
-              child: const Text('회원가입 하기'),
-            ),
-          ],
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: isSelected ? Colors.black : Colors.grey),
+              const SizedBox(height: 6),
+              Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+            ],
+          ),
         ),
       ),
     );

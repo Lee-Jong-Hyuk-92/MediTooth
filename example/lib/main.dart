@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'presentation/viewmodel/clinics_viewmodel.dart';
 import 'presentation/viewmodel/userinfo_viewmodel.dart';
 import 'services/router.dart';
 import '/presentation/viewmodel/auth_viewmodel.dart';
@@ -25,6 +26,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (_) => DPatientViewModel(baseUrl: globalBaseUrl),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ClinicsViewModel(baseUrl: globalBaseUrl),
         ),
         ChangeNotifierProvider(
           create: (_) => ConsultationRecordViewModel(baseUrl: globalBaseUrl),
