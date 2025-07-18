@@ -103,7 +103,7 @@ class _UploadScreenState extends State<UploadScreen> {
           final processedImageUrl = '$baseStaticUrl$processedPath';
 
           context.go(
-            '/result_detail',
+            '/upload_result_detail',
             extra: {
               'originalImageUrl': originalImageUrl,
               'processedImageUrls': {

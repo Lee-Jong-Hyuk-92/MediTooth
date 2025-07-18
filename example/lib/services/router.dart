@@ -20,6 +20,9 @@ import '/presentation/screens/history_screen.dart';
 import '/presentation/screens/clinics_screen.dart';
 import '/presentation/screens/doctor/d_result_detail_screen.dart'; // ✅ 환자 결과 화면
 import '/presentation/viewmodel/doctor/d_dashboard_viewmodel.dart';
+import '/presentation/screens/upload_result_detail_screen.dart';
+import '/presentation/screens/history_result_detail_screen.dart';
+import '/presentation/screens/doctor/d_telemedicine_result_detail_screen.dart';
 
 GoRouter createRouter(String baseUrl) {
   return GoRouter(
@@ -53,10 +56,31 @@ GoRouter createRouter(String baseUrl) {
             },
           ),
           GoRoute(
-            path: '/d_dashboard',
+            path: '/d_telemedicine_application',
             builder: (context, state) {
               final passedBaseUrl = state.extra as String? ?? baseUrl;
               return DTelemedicineApplicationScreen(baseUrl: passedBaseUrl);
+            },
+          ),
+          GoRoute(
+            path: '/d_telemedicine_result_detail',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+              return DTelemedicineResultDetailScreen(
+                originalImageUrl: extra['originalImageUrl'],
+                processedImageUrls: Map<int, String>.from(extra['processedImageUrls']),
+                modelInfos: Map<int, Map<String, dynamic>>.from(
+                  (extra['modelInfos'] ?? {}).map((key, value) =>
+                    MapEntry(int.parse(key.toString()), Map<String, dynamic>.from(value))),
+                ),
+                userId: extra['userId'],
+                inferenceResultId: extra['inferenceResultId'],
+                baseUrl: extra['baseUrl'],
+                role: extra['role'],
+                from: extra['from'],
+                doctorId: extra['doctorId'],
+                requestId: extra['requestId'],
+              );
             },
           ),
           GoRoute(
@@ -156,7 +180,42 @@ GoRouter createRouter(String baseUrl) {
               return UploadScreen(baseUrl: passedBaseUrl);
             },
           ),
-
+          GoRoute(
+            path: '/upload_result_detail',
+            builder: (context, state) {
+              final data = state.extra as Map<String, dynamic>;
+              return UploadResultDetailScreen(
+                originalImageUrl: data['originalImageUrl'],
+                processedImageUrls: Map<int, String>.from(data['processedImageUrls']),
+                modelInfos: Map<int, Map<String, dynamic>>.from(
+                  (data['modelInfos'] ?? {}).map((key, value) =>
+                      MapEntry(int.parse(key.toString()), Map<String, dynamic>.from(value))),
+                ),
+                userId: data['userId'],
+                inferenceResultId: data['inferenceResultId'],
+                baseUrl: data['baseUrl'],
+                role: data['role'], // ✅ 여기도 받아야 함
+              );
+            },
+          ),
+          GoRoute(
+            path: '/history_result_detail',
+            builder: (context, state) {
+              final data = state.extra as Map<String, dynamic>;
+              return HistoryResultDetailScreen(
+                originalImageUrl: data['originalImageUrl'],
+                processedImageUrls: Map<int, String>.from(data['processedImageUrls']),
+                modelInfos: Map<int, Map<String, dynamic>>.from(
+                  (data['modelInfos'] ?? {}).map((key, value) =>
+                      MapEntry(int.parse(key.toString()), Map<String, dynamic>.from(value))),
+                ),
+                userId: data['userId'],
+                inferenceResultId: data['inferenceResultId'],
+                baseUrl: data['baseUrl'],
+                role: data['role'], // ✅ 여기도 받아야 함
+              );
+            },
+          ),
           // ✅ 예측 결과 상세 화면
           GoRoute(
             path: '/result_detail',

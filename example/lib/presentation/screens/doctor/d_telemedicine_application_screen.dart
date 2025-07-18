@@ -134,7 +134,7 @@ class _DTelemedicineApplicationScreenState extends State<DTelemedicineApplicatio
                             : const Icon(Icons.pending_actions, color: Colors.orange),
                         onTap: () {
 
-                          context.go('/d_result_detail', extra: {
+                          context.go('/d_telemedicine_result_detail', extra: {
                             'baseUrl': widget.baseUrl,
                             'originalImageUrl': '${widget.baseUrl}${consult['image_path']}',
                             'processedImageUrls': {

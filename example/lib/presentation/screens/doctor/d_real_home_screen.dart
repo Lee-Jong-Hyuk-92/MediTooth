@@ -63,7 +63,7 @@ class DoctorDrawer extends StatelessWidget {
             title: '비대면 진료 신청',
             onTap: () {
               Navigator.pop(context);
-              context.go('/d_dashboard', extra: baseUrl);
+              context.go('/d_telemedicine_application', extra: baseUrl);
             },
           ),
           _buildDrawerItem(
@@ -308,7 +308,7 @@ class _DRealHomeScreenState extends State<DRealHomeScreen> {
           ...items.map((item) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: InkWell(
-                  onTap: () => context.go('/d_dashboard', extra: widget.baseUrl),
+                  onTap: () => context.go('/d_telemedicine_application', extra: widget.baseUrl),
                   child: Text(
                     '• $item',
                     style: Theme.of(context).textTheme.bodyMedium,

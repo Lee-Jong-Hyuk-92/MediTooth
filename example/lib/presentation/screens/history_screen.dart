@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '/presentation/viewmodel/doctor/d_consultation_record_viewmodel.dart';
 import '/presentation/viewmodel/auth_viewmodel.dart';
 import '/presentation/model/doctor/d_consultation_record.dart';
-import '/presentation/screens/doctor/d_result_detail_screen.dart';
+import '/presentation/screens/history_result_detail_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -127,7 +127,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   )
                 : null,
             onTap: () {
-              context.push('/result_detail', extra: {
+              context.push('/history_result_detail', extra: {
                 'originalImageUrl': '$imageBaseUrl${record.originalImagePath}',
                 'processedImageUrls': {
                   1: '$imageBaseUrl${record.processedImagePath}',
