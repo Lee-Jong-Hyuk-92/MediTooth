@@ -6,12 +6,14 @@ import 'package:provider/provider.dart'; // Provider is used for ChangeNotifierP
 import '/presentation/screens/doctor/d_inference_result_screen.dart';
 import '/presentation/screens/doctor/d_real_home_screen.dart'; // 의사 첫 홈 (DoctorDrawer 포함)
 import '/presentation/screens/doctor/d_telemedicine_application_screen.dart'; // ✅ 새로 추가된 비대면 진료 신청 화면
+import '/presentation/screens/doctor/d_calendar_screen.dart';
 import '/presentation/screens/main_scaffold.dart'; // 일반 사용자용 스캐폴드
 import '/presentation/screens/login_screen.dart';
 import '/presentation/screens/register_screen.dart';
 import '/presentation/screens/home_screen.dart';
 import '/presentation/screens/camera_inference_screen.dart';
 import '/presentation/screens/web_placeholder_screen.dart';
+import '/presentation/screens/telemedicine_apply_screen.dart';
 import '/presentation/viewmodel/auth_viewmodel.dart'; // ✅ 사용자 로그인 정보 접근
 
 // 하단 탭 바 화면들
@@ -64,11 +66,15 @@ GoRouter createRouter(String baseUrl) {
           GoRoute(
             path: '/d_dashboard',
             builder: (context, state) {
-              final passedBaseUrl = state.extra as String? ?? baseUrl;
-              return DTelemedicineApplicationScreen(baseUrl: passedBaseUrl); // ✅ 새로운 화면 위젯 사용
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              final passedBaseUrl = extra['baseUrl'] as String? ?? baseUrl; // ✅ 수정 완료
+              final initialTab = extra['initialTab'] as int? ?? 0;
+              return DTelemedicineApplicationScreen(
+                baseUrl: passedBaseUrl,
+                initialTab: initialTab,
+              );
             },
           ),
-
           // ✅ 의사 메뉴: 예약 현황
           GoRoute(
             path: '/d_appointments',
@@ -105,11 +111,10 @@ GoRouter createRouter(String baseUrl) {
             path: '/d_calendar',
             builder: (context, state) {
               final passedBaseUrl = state.extra as String? ?? baseUrl;
-              // TODO: 실제 진료 캘린더 화면 위젯으로 교체하세요. (이 화면도 Scaffold를 포함하고 DoctorDrawer를 사용해야 합니다.)
               return Scaffold(
                 appBar: AppBar(title: const Text('진료 캘린더')),
-                drawer: DoctorDrawer(baseUrl: passedBaseUrl), // DoctorDrawer 적용
-                body: const Center(child: Text('진료 캘린더 화면입니다.')),
+                drawer: DoctorDrawer(baseUrl: passedBaseUrl),
+                body: const DCalendarScreen(), // ✅ 실제 달력 화면 연결
               );
             },
           ),
@@ -183,6 +188,23 @@ GoRouter createRouter(String baseUrl) {
             builder: (context, state) {
               final passedBaseUrl = state.extra as String? ?? baseUrl;
               return HistoryScreen(baseUrl: passedBaseUrl);
+            },
+          ),
+          GoRoute(
+            path: '/apply',
+            builder: (context, state) {
+              final args = state.extra as Map<String, dynamic>? ?? {};
+              return TelemedicineApplyScreen(
+                userId: args['userId'],
+                inferenceResultId: args['inferenceResultId'],
+                baseUrl: args['baseUrl'],
+                diagnosisClassName: args['className'],
+                confidence: args['confidence'],
+                modelUsed: args['modelUsed'],
+                patientName: args['name'],
+                patientPhone: args['phone'],
+                patientBirth: args['birth'],
+              );
             },
           ),
           GoRoute(

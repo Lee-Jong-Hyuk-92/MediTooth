@@ -10,11 +10,35 @@ class ConsultationRecordViewModel with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
+  // ✅ 신청된 이미지 path
+  String? _currentAppliedImagePath;
+  String? get currentAppliedImagePath => _currentAppliedImagePath;
+
   ConsultationRecordViewModel({required this.baseUrl});
 
   List<ConsultationRecord> get records => _records;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  void setCurrentAppliedImagePath(String path) {
+    _currentAppliedImagePath = path;
+    notifyListeners();
+  }
+
+  // ✅ 신청된 이미지 가져오기
+  Future<void> fetchAppliedImagePath(String userId) async {
+    try {
+      final url = Uri.parse('$baseUrl/consult/active?user_id=$userId');
+      final res = await http.get(url);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        _currentAppliedImagePath = data['image_path'];
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('신청 이미지 경로 불러오기 실패: $e');
+    }
+  }
 
   Future<void> fetchRecords() async {
     _isLoading = true;

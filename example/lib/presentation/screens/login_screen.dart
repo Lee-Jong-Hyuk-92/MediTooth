@@ -58,108 +58,133 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // ✅ 뒤로가기 시 종료 확인 팝업
+  Future<bool> _onWillPop() async {
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('앱 종료'),
+        content: const Text('앱을 종료하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('종료'),
+          ),
+        ],
+      ),
+    );
+    return shouldExit ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF376193), // ✅ 파란 외부 배경
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Container(
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: const Color(0xFF376193), // ✅ 파란 외부 배경
+        body: Center(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(32),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // ✅ 로고 아이콘 (이미지 경로 수정)
-                Image.asset(
-                  'assets/icon/cdss-icon_500.png',
-                  width: 100,
-                  height: 100,
-                ),
-                const SizedBox(height: 24),
-
-                // 역할 선택 카드
-                Row(
-                  children: [
-                    _buildRoleCard('환자', 'P', Icons.person),
-                    const SizedBox(width: 12),
-                    _buildRoleCard('의사', 'D', Icons.medical_services),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // 아이디 입력
-                TextField(
-                  controller: registerIdController,
-                  decoration: InputDecoration(
-                    labelText: '아이디',
-                    prefixIcon: Icon(Icons.person_outline),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
                   ),
-                ),
-                const SizedBox(height: 16),
-
-                // 비밀번호 입력
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: '비밀번호',
-                    prefixIcon: Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ✅ 로고 아이콘 (이미지 경로 수정)
+                  Image.asset(
+                    'assets/icon/cdss-icon_500.png',
+                    width: 100,
+                    height: 100,
                   ),
-                ),
-                const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-                // 로그인 버튼
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: login,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: Colors.blueAccent,
-                      shape: RoundedRectangleBorder(
+                  // 역할 선택 카드
+                  Row(
+                    children: [
+                      _buildRoleCard('환자', 'P', Icons.person),
+                      const SizedBox(width: 12),
+                      _buildRoleCard('의사', 'D', Icons.medical_services),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // 아이디 입력
+                  TextField(
+                    controller: registerIdController,
+                    decoration: InputDecoration(
+                      labelText: '아이디',
+                      prefixIcon: Icon(Icons.person_outline),
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('로그인', style: TextStyle(fontSize: 16)),
                   ),
-                ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
-                // 회원가입 버튼
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => context.go('/register'),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.blueAccent),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
+                  // 비밀번호 입력
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: '비밀번호',
+                      prefixIcon: Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('회원가입 하기', style: TextStyle(color: Colors.blueAccent)),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 24),
+
+                  // 로그인 버튼
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: login,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('로그인', style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // 회원가입 버튼
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => context.go('/register'),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.blueAccent),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('회원가입 하기', style: TextStyle(color: Colors.blueAccent)),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -167,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-    Widget _buildRoleCard(String label, String roleValue, IconData icon) {
+  Widget _buildRoleCard(String label, String roleValue, IconData icon) {
     final isSelected = _selectedRole == roleValue;
 
     // 역할에 따른 색상 정의
@@ -206,5 +231,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    registerIdController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 }

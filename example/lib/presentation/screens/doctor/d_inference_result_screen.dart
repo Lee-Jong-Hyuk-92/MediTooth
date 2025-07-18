@@ -106,6 +106,7 @@ class _DInferenceResultScreenState extends State<DInferenceResultScreen> {
                       1: {
                         'model_used': record.modelUsed,
                         'confidence': record.confidence ?? 0.0,
+                        'class_name': 'Dental Issue', // 필요 시 class name 수정
                         'lesion_points': record.lesionPoints ?? [],
                       },
                     },

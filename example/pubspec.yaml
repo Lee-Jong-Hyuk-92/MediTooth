@@ -25,7 +25,7 @@ dependencies:
   permission_handler: ^11.0.0
   image_gallery_saver:
     path: packages/image_gallery_saver
-  
+  table_calendar: ^3.0.9  # ✅ 또는 최신 버전
 
   ultralytics_yolo:
     path: ../
