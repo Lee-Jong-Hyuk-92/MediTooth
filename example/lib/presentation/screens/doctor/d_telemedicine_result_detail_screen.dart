@@ -131,8 +131,7 @@ class _DTelemedicineResultDetailScreenState extends State<DTelemedicineResultDet
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            //context.pop('/d_telemedicine_application', extra: widget.baseUrl);
-            context.pop();
+            context.go('/d_telemedicine_application');
           },
         ),
       ),

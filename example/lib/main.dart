@@ -12,7 +12,9 @@ import '/presentation/viewmodel/doctor/d_dashboard_viewmodel.dart'; // ✅ 유�
 import 'core/theme/app_theme.dart';
 
 void main() {
-  const String globalBaseUrl = "http://192.168.0.19:5000/api";
+  //const String globalBaseUrl = "http://40640b39c147.ngrok-free.app/api";
+  const String globalBaseUrl = "http://112.160.108.8:5000/api";
+  //const String globalBaseUrl = "http://192.168.0.19:5000/api";
 
   runApp(
     MultiProvider(

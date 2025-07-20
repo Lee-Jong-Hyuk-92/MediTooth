@@ -10,7 +10,6 @@ class ConsultationRecordViewModel with ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  // ✅ 신청된 이미지 path
   String? _currentAppliedImagePath;
   String? get currentAppliedImagePath => _currentAppliedImagePath;
 
@@ -25,7 +24,7 @@ class ConsultationRecordViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  // ✅ 신청된 이미지 가져오기
+  /// ✅ 현재 신청 중인 이미지 하나 가져오기 (MySQL)
   Future<void> fetchAppliedImagePath(String userId) async {
     try {
       final url = Uri.parse('$baseUrl/consult/active?user_id=$userId');
@@ -40,13 +39,15 @@ class ConsultationRecordViewModel with ChangeNotifier {
     }
   }
 
-  Future<void> fetchRecords() async {
+  /// ✅ 전체 진단 기록 가져오기 (MongoDB)
+  Future<void> fetchRecords(String userId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final res = await http.get(Uri.parse('$baseUrl/inference-results'));
+      final url = Uri.parse('$baseUrl/inference-results?role=P&user_id=$userId'); // ✅ 수정됨
+      final res = await http.get(url);
 
       if (res.statusCode == 200) {
         final List data = json.decode(res.body);

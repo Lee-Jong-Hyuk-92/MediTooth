@@ -23,6 +23,8 @@ import '/presentation/viewmodel/doctor/d_dashboard_viewmodel.dart';
 import '/presentation/screens/upload_result_detail_screen.dart';
 import '/presentation/screens/history_result_detail_screen.dart';
 import '/presentation/screens/doctor/d_telemedicine_result_detail_screen.dart';
+import '/presentation/viewmodel/clinics_viewmodel.dart';
+
 
 GoRouter createRouter(String baseUrl) {
   return GoRouter(
@@ -264,7 +266,13 @@ GoRouter createRouter(String baseUrl) {
           ),
           GoRoute(
             path: '/clinics',
-            builder: (context, state) => const ClinicsScreen(),
+            builder: (context, state) {
+              final passedBaseUrl = state.extra as String? ?? baseUrl;
+              return ChangeNotifierProvider(
+                create: (_) => ClinicsViewModel(baseUrl: passedBaseUrl), // ✅ baseUrl 전달
+                child: const ClinicsScreen(),
+              );
+            },
           ),
           GoRoute(
             path: '/camera',

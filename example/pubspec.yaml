@@ -24,6 +24,7 @@ dependencies:
   permission_handler: ^11.0.0
   image_gallery_saver:
     path: packages/image_gallery_saver
+  location: ^5.0.3 # 또는 사용 중인 버전에 맞게
   
 
   ultralytics_yolo:

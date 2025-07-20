@@ -48,7 +48,6 @@ class _DTelemedicineApplicationScreenState extends State<DTelemedicineApplicatio
     }
   }
 
-  // ✅ 선택 사항: 사용하지 않으면 제거 가능
   void _showReplyDialog(dynamic consult, String doctorId) {
     final commentController = TextEditingController();
 
@@ -106,6 +105,9 @@ class _DTelemedicineApplicationScreenState extends State<DTelemedicineApplicatio
     final currentDoctor = Provider.of<AuthViewModel>(context, listen: false).currentUser;
     final doctorId = currentDoctor?.registerId;
 
+    // ✅ 이미지용 baseUrl 생성
+    final imageBaseUrl = widget.baseUrl.replaceFirst('/api', '');
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('비대면 진료 신청'),
@@ -123,6 +125,7 @@ class _DTelemedicineApplicationScreenState extends State<DTelemedicineApplicatio
                   itemCount: consults.length,
                   itemBuilder: (context, index) {
                     final consult = consults[index];
+                    final fileName = consult['image_path'].split('/').last;
                     return Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: ListTile(
@@ -133,14 +136,13 @@ class _DTelemedicineApplicationScreenState extends State<DTelemedicineApplicatio
                             ? const Icon(Icons.check, color: Colors.green)
                             : const Icon(Icons.pending_actions, color: Colors.orange),
                         onTap: () {
-
-                          context.go('/d_telemedicine_result_detail', extra: {
+                          context.push('/d_telemedicine_result_detail', extra: {
                             'baseUrl': widget.baseUrl,
-                            'originalImageUrl': '${widget.baseUrl}${consult['image_path']}',
+                            'originalImageUrl': '$imageBaseUrl/images/original/$fileName',
                             'processedImageUrls': {
-                              1: '${widget.baseUrl}/processed_uploads/model1/${consult['image_path'].split('/').last}',
-                              2: '${widget.baseUrl}/processed_uploads/model2/${consult['image_path'].split('/').last}',
-                              3: '${widget.baseUrl}/processed_uploads/model3/${consult['image_path'].split('/').last}',
+                              1: '$imageBaseUrl/images/model1/$fileName',
+                              2: '$imageBaseUrl/images/model2/$fileName',
+                              3: '$imageBaseUrl/images/model3/$fileName',
                             },
                             'modelInfos': {
                               1: {'model_used': 'Model 1', 'confidence': 0.85},
